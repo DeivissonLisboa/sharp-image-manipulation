@@ -22,6 +22,11 @@ const colors = [
   "#bcd4e6",
   "#99c1de",
 ]
+if (!fs.existsSync("output")) {
+  fs.mkdir("output", (err) => {
+    if (err) return console.error(err)
+  })
+}
 
 // async function spriteCounter() {
 //   try {
