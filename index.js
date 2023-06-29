@@ -1,8 +1,14 @@
 const sharp = require("sharp")
+const fs = require("fs")
+const { promisify } = require("util")
+
+const readdir = promisify(fs.readdir)
 
 const width = 300,
   height = 300,
-  background = "#ff0000"
+  sprite_width = 150,
+  sprite_height = 150
+;(sprites_path = __dirname + "/assets/sprites"), (sprites_count = 228)
 
 const colors = [
   "#eddcd2",
@@ -17,9 +23,19 @@ const colors = [
   "#99c1de",
 ]
 
-const sprite_path = __dirname + "/assets/sprites/tile000.png",
-  sprite_width = width / 2,
-  sprite_height = height / 2
+// async function spriteCounter() {
+//   try {
+//     return await readdir(sprites_path).length
+//   } catch (err) {
+//     console.error(err)
+//   }
+// }
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min)
+  max = Math.floor(max)
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
 
 async function createImage() {
   try {
@@ -28,13 +44,19 @@ async function createImage() {
         width,
         height,
         channels: 4,
-        background,
+        background: colors[getRandomInt(0, colors.length - 1)],
       },
     })
       .png()
       .toBuffer()
 
-    const sprite = await sharp(sprite_path).toBuffer()
+    const sprite_number = String(getRandomInt(0, sprites_count - 1)).padStart(
+      3,
+      "0"
+    )
+    const sprite = await sharp(
+      sprites_path + `/tile${sprite_number}.png`
+    ).toBuffer()
 
     const composedImage = await sharp(bgImage)
       .composite([
@@ -44,7 +66,7 @@ async function createImage() {
           top: (height - sprite_height) / 2,
         },
       ])
-      .toFile(__dirname + "/output/test.png", (err, info) => {
+      .toFile(__dirname + `/output/${Date.now()}.png`, (err, info) => {
         if (err) return console.error(err)
       })
   } catch (err) {
@@ -52,4 +74,6 @@ async function createImage() {
   }
 }
 
-createImage()
+for (let i = 0; i < 20; i++) {
+  createImage()
+}
